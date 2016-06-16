@@ -1,0 +1,82 @@
+DDP_Project
+========================================================
+author: Travis Porter
+date: 12 June 2016
+autosize: true
+transition: rotate
+
+Project Overview
+========================================================
+
+This project exampines consumer complaint data published by the Bureau of Consumer Financial Protection available at: <http://www.consumerfinance.gov/data-research/consumer-complaints/>.
+
+Specifically, this project examines three areas (from over 500K records) pertaining to consumer complaint data between February 2014 - September 2015:
+
+- Consumer Products
+- Companies 
+- Timeliness Response Rate
+
+Consumer Products
+========================================================
+
+- How the shiny app calculates which products have the most complaints:
+
+```{r echo=TRUE, eval=TRUE}
+library(dplyr)
+
+complaints <- read.csv("Consumer_Complaints.csv", header = TRUE, sep = ",")
+complaints %>% group_by(Product) %>% summarize(count=n())
+product <- as.data.frame(complaints %>% group_by(Product) %>% summarize(count=n()))
+product <- arrange(product, desc(count))
+```
+
+Companies
+========================================================
+
+- How the shiny app calculates which companies have the most complaints:
+
+```{r, echo=TRUE, eval=FALSE}
+
+complaints %>% group_by(Company) %>% summarize(count=n())
+companies <- as.data.frame(complaints %>% group_by(Company) %>% summarize(count=n()))
+companies <- arrange(companies, desc(count))
+
+```
+
+Timeliness Response Rate
+========================================================
+
+- How the shiny app calculates the timely effectiveness rate by complaint submission method
+
+```{r, echo=TRUE, eval=FALSE}
+
+untimely <- complaints[complaints$Timely.response. == "No",]
+untimely <- as.data.frame(untimely %>% group_by(Submitted.via) %>% summarize(count=n()))
+untimely <- arrange(untimely, desc(count))
+
+timely <- complaints[complaints$Timely.response. == "Yes",]
+timely <- as.data.frame(timely %>% group_by(Submitted.via) %>% summarize(count=n()))
+timely <- arrange(timely, desc(count))
+
+df3 <- merge(untimely, timely, "Submitted.via")
+names(df3) <- c("Submitted.via", "untimely", "timely")
+
+df3$total <- df3$timely + df3$untimely
+df3$timely.effective <- df3$timely/df3$total
+df3 <- arrange(df3, desc(timely.effective))
+
+```
+
+Findings
+========================================================
+
+- Mortgates and debt collection accounted for more consumer complaints than any other product type
+- Bank of America and Wells Fargo & Company had more compalints than any other company
+- It doesn't really matter how a consumer submitted a complaint, all of them had a high timeliness response rate (x > 95%)
+
+Future Areas of Study Not Explored by this Project
+========================================================
+
+- Can your zip code predict consumer complaint data?
+- Expand plot options tailored to customer requirements
+
