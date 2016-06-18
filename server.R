@@ -2,6 +2,7 @@ library(shiny)
 library(ggplot2)
 library(dplyr)
 
+complaints <- read.csv("Consumer_Complaints.csv", header = TRUE, sep = ",")
 complaints %>% group_by(Product) %>% summarize(count=n())
 product <- as.data.frame(complaints %>% group_by(Product) %>% summarize(count=n()))
 product <- arrange(product, desc(count))
